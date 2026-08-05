@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STO Performance & Gamas Dashboard</title>
+    <title>KHALILA</title>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,6 +68,10 @@
                     <button class="region-btn" data-region="karawang">
                         <i data-lucide="map-pin"></i>
                         <span>Karawang</span>
+                    </button>
+                    <button class="region-btn" data-region="eastern">
+                        <i data-lucide="map-pin"></i>
+                        <span>Eastern</span>
                     </button>
                 </nav>
             </div>
@@ -157,9 +161,9 @@
                     </div>
                     <div class="header-controls"
                         style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <div class="single-kpi-selector" id="single-kpi-selector" style="display: none; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <div class="single-kpi-selector" id="single-kpi-selector" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <!-- Filter 1: Pilih KPI -->
-                            <div class="filter-item" style="display: flex; align-items: center; gap: 5px;">
+                            <div class="filter-item" id="filter-kpi-item" style="display: flex; align-items: center; gap: 5px;">
                                 <label for="single-kpi-select" style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
                                     KPI:
                                 </label>
@@ -177,7 +181,7 @@
                             </div>
 
                             <!-- Filter 2: Pilih STO -->
-                            <div class="filter-item" style="display: flex; align-items: center; gap: 5px;">
+                            <div class="filter-item" id="filter-sto-item" style="display: flex; align-items: center; gap: 5px;">
                                 <label for="sto-filter-select" style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
                                     STO:
                                 </label>
@@ -190,7 +194,7 @@
                             </div>
 
                             <!-- Filter 3: Urutan / Sorting -->
-                            <div class="filter-item" style="display: flex; align-items: center; gap: 5px;">
+                            <div class="filter-item" id="filter-sort-item" style="display: flex; align-items: center; gap: 5px;">
                                 <label for="sort-order-select" style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
                                     Urutan:
                                 </label>

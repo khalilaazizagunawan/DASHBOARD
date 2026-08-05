@@ -467,8 +467,9 @@ async function renderAllKpiTable() {
 
     thead.innerHTML = `
         <tr>
+            <th style="width: 50px; text-align: center;"><div class="th-content">No.</div></th>
             <th class="sticky-col">
-                <div class="th-content"><i data-lucide="building"></i> STO</div>
+                <div class="th-content"><i data-lucide="building"></i> ${region === 'eastern' ? 'Branch' : 'STO'}</div>
             </th>
             <th><div class="th-content"><i data-lucide="activity"></i> Service Availability (%)</div></th>
             <th><div class="th-content"><i data-lucide="shield-check"></i> Assurance Guarantee (%)</div></th>
@@ -479,15 +480,59 @@ async function renderAllKpiTable() {
         </tr>
     `;
 
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; font-weight: 500; color: var(--text-secondary);">Memuat data...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px; font-weight: 500; color: var(--text-secondary);">Memuat data...</td></tr>';
     tfoot.innerHTML = '';
 
-    const monthData = await getActiveData(region, month, year);
+    async function getEasternAggregatedData(m, y) {
+        const branches = ['bogor', 'bekasi', 'karawang'];
+        const branchRows = [];
+        for (const b of branches) {
+            const rawData = await getActiveData(b, m, y);
+            let sumSaPct = 0, countSa = 0, sumSaAch = 0, sumSaNot = 0;
+            let sumAgPct = 0, countAg = 0, sumAgAch = 0, sumAgNot = 0;
+            let sumT3Pct = 0, countT3 = 0, sumT3Ach = 0, sumT3Not = 0;
+            let sumT6Pct = 0, countT6 = 0, sumT6Ach = 0, sumT6Not = 0;
+            let sumT36Pct = 0, countT36 = 0, sumT36Ach = 0, sumT36Not = 0;
+            let sumManjaPct = 0, countManja = 0, sumManjaAch = 0, sumManjaNot = 0;
+            let hasAnyData = false;
+
+            rawData.forEach(r => {
+                const getAch = (pct, targetSla, eAch, eNot) => {
+                    const hasPct = pct !== undefined && pct > 0;
+                    if (!hasPct && !r.hasData) return {ach: 0, not: 0};
+                    const ach = eAch !== undefined ? eAch : (pct >= targetSla ? 1 : 0);
+                    const not = eNot !== undefined ? eNot : (pct >= targetSla ? 0 : 1);
+                    return {ach, not};
+                };
+                if (r.serviceAvailability > 0 || r.hasData) { sumSaPct += r.serviceAvailability; countSa++; hasAnyData = true; const c = getAch(r.serviceAvailability, 98.5, r.serviceAvailabilityExcelAch, r.serviceAvailabilityExcelNotAch); sumSaAch += c.ach; sumSaNot += c.not; }
+                if (r.assuranceGuarantee > 0 || r.hasData) { sumAgPct += r.assuranceGuarantee; countAg++; hasAnyData = true; const c = getAch(r.assuranceGuarantee, 95.0, r.assuranceGuaranteeExcelAch, r.assuranceGuaranteeExcelNotAch); sumAgAch += c.ach; sumAgNot += c.not; }
+                if (r.ttr3h > 0 || r.hasData) { sumT3Pct += r.ttr3h; countT3++; hasAnyData = true; const c = getAch(r.ttr3h, 95.0, r.ttr3hExcelAch, r.ttr3hExcelNotAch); sumT3Ach += c.ach; sumT3Not += c.not; }
+                if (r.ttr6h > 0 || r.hasData) { sumT6Pct += r.ttr6h; countT6++; hasAnyData = true; const c = getAch(r.ttr6h, 95.0, r.ttr6hExcelAch, r.ttr6hExcelNotAch); sumT6Ach += c.ach; sumT6Not += c.not; }
+                if (r.ttr36h > 0 || r.hasData) { sumT36Pct += r.ttr36h; countT36++; hasAnyData = true; const c = getAch(r.ttr36h, 95.0, r.ttr36hExcelAch, r.ttr36hExcelNotAch); sumT36Ach += c.ach; sumT36Not += c.not; }
+                if (r.ttrManja > 0 || r.hasData) { sumManjaPct += r.ttrManja; countManja++; hasAnyData = true; const c = getAch(r.ttrManja, 95.0, r.ttrManjaExcelAch, r.ttrManjaExcelNotAch); sumManjaAch += c.ach; sumManjaNot += c.not; }
+            });
+
+            branchRows.push({
+                sto: b.toUpperCase(), hasData: hasAnyData,
+                serviceAvailability: countSa > 0 ? (sumSaPct / countSa) : 0, serviceAvailabilityExcelAch: sumSaAch, serviceAvailabilityExcelNotAch: sumSaNot,
+                assuranceGuarantee: countAg > 0 ? (sumAgPct / countAg) : 0, assuranceGuaranteeExcelAch: sumAgAch, assuranceGuaranteeExcelNotAch: sumAgNot,
+                ttr3h: countT3 > 0 ? (sumT3Pct / countT3) : 0, ttr3hExcelAch: sumT3Ach, ttr3hExcelNotAch: sumT3Not,
+                ttr6h: countT6 > 0 ? (sumT6Pct / countT6) : 0, ttr6hExcelAch: sumT6Ach, ttr6hExcelNotAch: sumT6Not,
+                ttr36h: countT36 > 0 ? (sumT36Pct / countT36) : 0, ttr36hExcelAch: sumT36Ach, ttr36hExcelNotAch: sumT36Not,
+                ttrManja: countManja > 0 ? (sumManjaPct / countManja) : 0, ttrManjaExcelAch: sumManjaAch, ttrManjaExcelNotAch: sumManjaNot
+            });
+        }
+        return branchRows;
+    }
+
+    const isEastern = region === 'eastern';
+    const monthData = isEastern ? await getEasternAggregatedData(month, year) : await getActiveData(region, month, year);
     tbody.innerHTML = '';
 
-    // Collect STOs exactly like Menu 2
     let stoList = [];
-    if (AppState.selectedSto && AppState.selectedSto !== 'ALL') {
+    if (isEastern) {
+        stoList = ['BOGOR', 'BEKASI', 'KARAWANG'];
+    } else if (AppState.selectedSto && AppState.selectedSto !== 'ALL') {
         stoList = [AppState.selectedSto];
     } else {
         const extraStos = new Set(AppState.stoLists[region] || []);
@@ -520,7 +565,7 @@ async function renderAllKpiTable() {
     let sumT36Pct = 0, countT36 = 0;
     let sumManjaPct = 0, countManja = 0;
 
-    stoList.forEach(stoName => {
+    stoList.forEach((stoName, index) => {
         const row = (monthData || []).find(d => d.sto.toUpperCase() === stoName.toUpperCase()) || {};
 
         const renderMetricCell = (pct, targetSla, categoryName, excelAch, excelNotAch) => {
@@ -562,6 +607,7 @@ async function renderAllKpiTable() {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
+            <td style="text-align: center; font-weight: 600;">${index + 1}</td>
             <td class="sticky-col">${stoName}</td>
             <td>${renderMetricCell(row.serviceAvailability, 98.5, 'Service Availability (%)', row.serviceAvailabilityExcelAch, row.serviceAvailabilityExcelNotAch)}</td>
             <td>${renderMetricCell(row.assuranceGuarantee, 95.0, 'Assurance Guarantee (%)', row.assuranceGuaranteeExcelAch, row.assuranceGuaranteeExcelNotAch)}</td>
@@ -573,9 +619,12 @@ async function renderAllKpiTable() {
         tbody.appendChild(tr);
     });
 
+    const branchName = region === 'eastern' ? 'EASTERN' : region.toUpperCase();
+
     tfoot.innerHTML = `
         <tr>
-            <td class="sticky-col">Total / Avg</td>
+            <td></td>
+            <td class="sticky-col">${branchName}</td>
             <td style="font-weight: 700; text-align: center;">${countSa > 0 ? formatPct(sumSaPct / countSa) : '-'}</td>
             <td style="font-weight: 700; text-align: center;">${countAg > 0 ? formatPct(sumAgPct / countAg) : '-'}</td>
             <td style="font-weight: 700; text-align: center;">${countT3 > 0 ? formatPct(sumT3Pct / countT3) : '-'}</td>
@@ -591,6 +640,13 @@ async function renderAllKpiTable() {
 function updateStoFilterDropdown() {
     const stoSelect = document.getElementById('sto-filter-select');
     if (!stoSelect) return;
+
+    if (AppState.activeRegion === 'eastern') {
+        stoSelect.innerHTML = `<option value="ALL">Semua Branch</option>`;
+        stoSelect.value = 'ALL';
+        AppState.selectedSto = 'ALL';
+        return;
+    }
 
     const currentVal = AppState.selectedSto || 'ALL';
     const stos = AppState.stoLists[AppState.activeRegion] || [];
@@ -630,8 +686,9 @@ async function renderSingleKpiTable() {
 
     thead.innerHTML = `
         <tr>
+            <th style="width: 50px; text-align: center;"><div class="th-content">No.</div></th>
             <th class="sticky-col">
-                <div class="th-content"><i data-lucide="building"></i> STO</div>
+                <div class="th-content"><i data-lucide="building"></i> ${region === 'eastern' ? 'Branch' : 'STO'}</div>
             </th>
             ${MONTHS_LIST.map(m => `
                 <th><div class="th-content"><i data-lucide="calendar"></i> ${m.substring(0, 3)}</div></th>
@@ -648,15 +705,65 @@ async function renderSingleKpiTable() {
     tbody.innerHTML = `<tr><td colspan="15" style="text-align: center; padding: 20px; font-weight: 500; color: var(--text-secondary);">Memuat data matrix 12 bulan...</td></tr>`;
     tfoot.innerHTML = '';
 
+    const isEastern = region === 'eastern';
+
+    async function getEasternAggregatedDataSingle(m, y) {
+        const branches = ['bogor', 'bekasi', 'karawang'];
+        const branchRows = [];
+        for (const b of branches) {
+            const rawData = await getActiveData(b, m, y);
+            let sumPct = 0, countPct = 0, sumAch = 0, sumNot = 0;
+            let hasAnyData = false;
+
+            rawData.forEach(r => {
+                let pct = 0;
+                let excelAch = r[`${selectedKpiKey}ExcelAch`];
+                let excelNot = r[`${selectedKpiKey}ExcelNotAch`];
+
+                if (selectedKpiKey === 'serviceAvailability') pct = r.serviceAvailability;
+                else if (selectedKpiKey === 'assuranceGuarantee') pct = r.assuranceGuarantee;
+                else if (selectedKpiKey === 'ttr3h') pct = r.ttr3h;
+                else if (selectedKpiKey === 'ttr6h') pct = r.ttr6h;
+                else if (selectedKpiKey === 'ttr36h') pct = r.ttr36h;
+                else if (selectedKpiKey === 'ttrManja') pct = r.ttrManja;
+
+                if ((pct !== undefined && pct > 0) || r.hasData) {
+                    sumPct += (pct || 0);
+                    countPct++;
+                    hasAnyData = true;
+
+                    const isAchieved = (pct || 0) >= targetSla;
+                    const ach = excelAch !== undefined ? excelAch : (isAchieved ? 1 : 0);
+                    const not = excelNot !== undefined ? excelNot : (isAchieved ? 0 : 1);
+
+                    sumAch += ach;
+                    sumNot += not;
+                }
+            });
+
+            const branchObj = {
+                sto: b.toUpperCase(),
+                hasData: hasAnyData
+            };
+            branchObj[selectedKpiKey] = countPct > 0 ? (sumPct / countPct) : 0;
+            branchObj[`${selectedKpiKey}ExcelAch`] = sumAch;
+            branchObj[`${selectedKpiKey}ExcelNotAch`] = sumNot;
+            branchRows.push(branchObj);
+        }
+        return branchRows;
+    }
+
     const monthlyDataMap = {};
     for (const month of MONTHS_LIST) {
-        monthlyDataMap[month] = await getActiveData(region, month, year);
+        monthlyDataMap[month] = isEastern ? await getEasternAggregatedDataSingle(month, year) : await getActiveData(region, month, year);
     }
 
     tbody.innerHTML = '';
     let stoList = [];
 
-    if (AppState.selectedSto && AppState.selectedSto !== 'ALL') {
+    if (isEastern) {
+        stoList = ['BOGOR', 'BEKASI', 'KARAWANG'];
+    } else if (AppState.selectedSto && AppState.selectedSto !== 'ALL') {
         stoList = [AppState.selectedSto];
     } else {
         const extraStos = new Set(AppState.stoLists[region] || []);
@@ -750,9 +857,12 @@ async function renderSingleKpiTable() {
     let totalAllAchieved = 0;
     let totalAllUnachieved = 0;
 
-    stoRowObjects.forEach(item => {
+    stoRowObjects.forEach((item, index) => {
         const tr = document.createElement('tr');
-        let cellsHtml = `<td class="sticky-col">${item.stoName}</td>`;
+        let cellsHtml = `
+            <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+            <td class="sticky-col">${item.stoName}</td>
+        `;
 
         item.monthCells.forEach(cell => {
             if (cell.hasData) {
@@ -789,9 +899,12 @@ async function renderSingleKpiTable() {
         tbody.appendChild(tr);
     });
 
+    const branchName = region === 'eastern' ? 'EASTERN' : region.toUpperCase();
+
     tfoot.innerHTML = `
         <tr>
-            <td class="sticky-col">Total / Avg</td>
+            <td></td>
+            <td class="sticky-col">${branchName}</td>
             ${MONTHS_LIST.map(m => {
                 const mt = monthTotals[m];
                 const avgPct = mt.count > 0 ? (mt.sumPct / mt.count) : 0;
@@ -809,14 +922,20 @@ async function renderTable() {
     const singleKpiSelector = document.getElementById('single-kpi-selector');
     const monthFilterSection = document.getElementById('month-filter-section');
     const tableTitle = document.getElementById('table-title');
+    
+    const filterKpi = document.getElementById('filter-kpi-item');
+    const filterSort = document.getElementById('filter-sort-item');
 
     if (AppState.activePage === 'all-kpi') {
-        if (singleKpiSelector) singleKpiSelector.style.display = 'none';
+        if (filterKpi) filterKpi.style.display = 'none';
+        if (filterSort) filterSort.style.display = 'none';
         if (monthFilterSection) monthFilterSection.style.display = 'block';
+        updateStoFilterDropdown();
         if (tableTitle) tableTitle.textContent = 'Ringkasan Semua KPI per STO';
         await renderAllKpiTable();
     } else {
-        if (singleKpiSelector) singleKpiSelector.style.display = 'flex';
+        if (filterKpi) filterKpi.style.display = 'flex';
+        if (filterSort) filterSort.style.display = 'flex';
         if (monthFilterSection) monthFilterSection.style.display = 'none';
         updateStoFilterDropdown();
         const kpiInfo = KPI_LABEL_MAP[AppState.selectedSingleKpi] || KPI_LABEL_MAP.serviceAvailability;
