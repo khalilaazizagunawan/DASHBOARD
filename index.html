@@ -1,44 +1,66 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KHALILA</title>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Style CSS -->
     <link rel="stylesheet" href="style.css?v=2.3.0">
-    <!-- SheetJS for Excel parsing & exporting -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo" style="background: none;">
+                    <img src="Logo.png" alt="KHALILA Logo"
+                        style="width: 150%; height: 150%; object-fit: contain; border-radius: 12px;">
+                </div>
+                <h2>LOGIN</h2>
+            </div>
+            <form id="login-form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="username"
+                        style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px;">Username</label>
+                    <input type="text" id="username" class="form-input" required
+                        placeholder="Masukkan username (admin)">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="password"
+                        style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px;">Password</label>
+                    <input type="password" id="password" class="form-input" required
+                        placeholder="Masukkan password (admin123)">
+                </div>
+                <button type="submit" class="action-btn upload-btn"
+                    style="width: 100%; justify-content: center; margin-top: 10px; padding: 12px; font-size: 14px;">
+                    Login
+                </button>
+                <div id="login-error"
+                    style="color: var(--red-primary); text-align: center; font-size: 13px; margin-top: 15px; display: none; font-weight: 500;">
+                    Username atau password salah!
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="app-container" id="app-container" style="display: none;">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo-area">
-                    <div class="logo-icon">
-                        <i data-lucide="bar-chart-3"></i>
+                    <div class="logo-icon" style="background: none; border-radius: 0;">
+                        <img src="Logo.png" alt="KHALILA Logo" style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                     <div>
                         <h1 class="logo-title">KHALILA</h1>
-                        <p class="logo-subtitle">Performance Portal</p>
                     </div>
                 </div>
                 <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" aria-label="Collapse Menu">
                     <i data-lucide="menu"></i>
                 </button>
             </div>
-
-            <!-- Main Menu Navigation -->
             <div class="sidebar-section">
                 <h3 class="section-title">Menu Utama</h3>
                 <nav class="main-nav">
@@ -52,18 +74,16 @@
                     </button>
                 </nav>
             </div>
-
-            <!-- Region Selection -->
             <div class="sidebar-section">
                 <h3 class="section-title">Daerah Operasional</h3>
                 <nav class="region-nav">
-                    <button class="region-btn active" data-region="bogor">
-                        <i data-lucide="map-pin"></i>
-                        <span>Bogor</span>
-                    </button>
-                    <button class="region-btn" data-region="bekasi">
+                    <button class="region-btn active" data-region="bekasi">
                         <i data-lucide="map-pin"></i>
                         <span>Bekasi</span>
+                    </button>
+                    <button class="region-btn" data-region="bogor">
+                        <i data-lucide="map-pin"></i>
+                        <span>Bogor</span>
                     </button>
                     <button class="region-btn" data-region="karawang">
                         <i data-lucide="map-pin"></i>
@@ -75,8 +95,6 @@
                     </button>
                 </nav>
             </div>
-
-            <!-- Time Filter Section -->
             <div class="sidebar-section">
                 <h3 class="section-title">Periode Analisis</h3>
                 <div class="filter-group" style="margin-bottom: 10px;">
@@ -90,7 +108,6 @@
                         <i data-lucide="chevron-down" class="select-chevron"></i>
                     </div>
                 </div>
-
                 <div class="filter-group" id="month-filter-section">
                     <label for="month-select" class="filter-label">Bulan</label>
                     <div class="select-wrapper">
@@ -112,11 +129,8 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Actions Section -->
             <div class="sidebar-section sidebar-actions">
                 <h3 class="section-title">Kelola Data</h3>
-
                 <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="display: none;">
                 <button type="button" class="action-btn upload-btn" id="upload-trigger-btn"
                     aria-label="Upload Excel Data">
@@ -124,26 +138,24 @@
                     <span>Upload Excel Data</span>
                 </button>
             </div>
-
             <div class="sidebar-footer">
                 <p>&copy; Division Performance</p>
-                <p>Data tersimpan di sesi ini</p>
+                <button type="button" id="logout-btn" class="action-btn download-btn"
+                    style="margin-top: 15px; width: 100%; padding: 10px; justify-content: center; background-color: var(--gray-bg); border-color: var(--gray-border-dark);">
+                    <i data-lucide="log-out"></i>
+                    <span>Logout</span>
+                </button>
             </div>
         </aside>
-
-        <!-- Sidebar overlay for mobile -->
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-        <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Header -->
             <header class="content-header">
                 <div class="header-left">
                     <button class="sidebar-expand-btn" id="sidebar-expand-btn" aria-label="Expand Menu">
                         <i data-lucide="menu"></i>
                     </button>
                     <div class="header-title-wrapper">
-                        <h2 class="content-title" id="dashboard-title">Dashboard STO Bogor</h2>
+                        <h2 class="content-title" id="dashboard-title">Kendali Hasil Analisis & Laporan Informasi Lintas Area</h2>
                         <p class="content-subtitle" id="dashboard-subtitle">Periode Juli 2026</p>
                     </div>
                 </div>
@@ -151,24 +163,26 @@
                     <div class="upload-status" id="upload-status"></div>
                 </div>
             </header>
-
-            <!-- Table Card Section -->
             <section class="table-card">
                 <div class="table-card-header">
                     <div class="header-info">
                         <h3 class="table-title" id="table-title">Ringkasan Semua KPI per STO</h3>
-                        <p class="table-subtitle" id="data-update-text">Rincian data per unit sentral telepon otomat (STO)</p>
+                        <p class="table-subtitle" id="data-update-text">Rincian data per unit sentral telepon otomat
+                            (STO)</p>
                     </div>
                     <div class="header-controls"
                         style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <div class="single-kpi-selector" id="single-kpi-selector" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                            <!-- Filter 1: Pilih KPI -->
-                            <div class="filter-item" id="filter-kpi-item" style="display: flex; align-items: center; gap: 5px;">
-                                <label for="single-kpi-select" style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
+                        <div class="single-kpi-selector" id="single-kpi-selector"
+                            style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <div class="filter-item" id="filter-kpi-item"
+                                style="display: flex; align-items: center; gap: 5px;">
+                                <label for="single-kpi-select"
+                                    style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
                                     KPI:
                                 </label>
                                 <div class="select-wrapper" style="min-width: 195px;">
-                                    <select id="single-kpi-select" class="form-select" style="padding: 5px 28px 5px 10px; font-size: 12px;">
+                                    <select id="single-kpi-select" class="form-select"
+                                        style="padding: 5px 28px 5px 10px; font-size: 12px;">
                                         <option value="serviceAvailability" selected>Service Availability (%)</option>
                                         <option value="assuranceGuarantee">Assurance Guarantee (%)</option>
                                         <option value="ttr3h">TTR 3H D,V</option>
@@ -179,27 +193,29 @@
                                     <i data-lucide="chevron-down" class="select-chevron" style="right: 8px;"></i>
                                 </div>
                             </div>
-
-                            <!-- Filter 2: Pilih STO -->
-                            <div class="filter-item" id="filter-sto-item" style="display: flex; align-items: center; gap: 5px;">
-                                <label for="sto-filter-select" style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
+                            <div class="filter-item" id="filter-sto-item"
+                                style="display: flex; align-items: center; gap: 5px;">
+                                <label for="sto-filter-select"
+                                    style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
                                     STO:
                                 </label>
                                 <div class="select-wrapper" style="min-width: 125px;">
-                                    <select id="sto-filter-select" class="form-select" style="padding: 5px 28px 5px 10px; font-size: 12px;">
+                                    <select id="sto-filter-select" class="form-select"
+                                        style="padding: 5px 28px 5px 10px; font-size: 12px;">
                                         <option value="ALL" selected>Semua STO</option>
                                     </select>
                                     <i data-lucide="chevron-down" class="select-chevron" style="right: 8px;"></i>
                                 </div>
                             </div>
-
-                            <!-- Filter 3: Urutan / Sorting -->
-                            <div class="filter-item" id="filter-sort-item" style="display: flex; align-items: center; gap: 5px;">
-                                <label for="sort-order-select" style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
+                            <div class="filter-item" id="filter-sort-item"
+                                style="display: flex; align-items: center; gap: 5px;">
+                                <label for="sort-order-select"
+                                    style="font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">
                                     Urutan:
                                 </label>
                                 <div class="select-wrapper" style="min-width: 175px;">
-                                    <select id="sort-order-select" class="form-select" style="padding: 5px 28px 5px 10px; font-size: 12px;">
+                                    <select id="sort-order-select" class="form-select"
+                                        style="padding: 5px 28px 5px 10px; font-size: 12px;">
                                         <option value="default" selected>Default STO (A - Z)</option>
                                         <option value="notAchieveDesc">Not Achieve Terbesar</option>
                                         <option value="achieveDesc">Achieve Terbesar</option>
@@ -210,7 +226,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="table-wrapper-outer">
                     <div class="table-wrapper-inner">
                         <table id="performance-table">
@@ -220,10 +235,12 @@
                                         <div class="th-content"><i data-lucide="building"></i> STO</div>
                                     </th>
                                     <th>
-                                        <div class="th-content"><i data-lucide="activity"></i> Service Availability (%)</div>
+                                        <div class="th-content"><i data-lucide="activity"></i> Service Availability (%)
+                                        </div>
                                     </th>
                                     <th>
-                                        <div class="th-content"><i data-lucide="shield-check"></i> Assurance Guarantee (%)</div>
+                                        <div class="th-content"><i data-lucide="shield-check"></i> Assurance Guarantee
+                                            (%)</div>
                                     </th>
                                     <th>
                                         <div class="th-content"><i data-lucide="clock"></i> TTR 3H D,V</div>
@@ -240,10 +257,8 @@
                                 </tr>
                             </thead>
                             <tbody id="table-body">
-                                <!-- JS populated rows go here -->
                             </tbody>
                             <tfoot id="table-footer">
-                                <!-- JS populated totals go here -->
                             </tfoot>
                         </table>
                     </div>
@@ -251,55 +266,7 @@
             </section>
         </main>
     </div>
-
-    <!-- Toast Notification -->
     <div class="toast-container" id="toast-container"></div>
-
-    <!-- Incident Detail Modal Popup -->
-    <div class="modal-overlay" id="incident-modal-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <div class="modal-title-wrapper">
-                    <div class="modal-icon">
-                        <i data-lucide="alert-circle"></i>
-                    </div>
-                    <div>
-                        <h3 class="modal-title" id="modal-sto-title">Detail Tiket Unachieved - STO BGL</h3>
-                        <p class="modal-subtitle" id="modal-sto-subtitle">Kategori: TTR DOMAIN &bull; Periode Juli W1</p>
-                    </div>
-                </div>
-                <button class="modal-close-btn" id="modal-close-btn" aria-label="Close Modal">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-summary-badges" id="modal-summary-badges">
-                    <!-- Stat Badges populated dynamically -->
-                </div>
-                <div class="modal-table-wrapper">
-                    <table class="modal-table">
-                        <thead>
-                            <tr>
-                                <th>No. Tiket</th>
-                                <th>Deskripsi Kendala</th>
-                                <th>Lokasi / ODP</th>
-                                <th>Durasi (Real vs SLA)</th>
-                                <th>Penyebab (Root Cause)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="modal-table-body">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="action-btn download-btn" id="modal-close-footer-btn" style="margin-bottom: 0; width: auto; padding: 8px 20px;">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Script JS -->
     <script src="app.js?v=3.0.0"></script>
 </body>
 </html>
