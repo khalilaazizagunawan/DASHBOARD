@@ -67,7 +67,16 @@
             <div class="sidebar-section">
                 <h3 class="section-title">Menu Utama</h3>
                 <nav class="main-nav">
-                    <button class="nav-btn active" id="nav-all-kpi" data-page="all-kpi">
+                    <button class="nav-btn active" id="nav-dashboard-wsa" data-page="dashboard-wsa">
+                        <i data-lucide="layout-grid"></i>
+                        <span>Dashboard WSA</span>
+                    </button>
+                </nav>
+            </div>
+            <div class="sidebar-section">
+                <h3 class="section-title">Laporan Detail Tabel</h3>
+                <nav class="main-nav">
+                    <button class="nav-btn" id="nav-all-kpi" data-page="all-kpi">
                         <i data-lucide="layout-dashboard"></i>
                         <span>Ringkasan Semua KPI</span>
                     </button>
@@ -77,7 +86,7 @@
                     </button>
                 </nav>
             </div>
-            <div class="sidebar-section">
+            <div class="sidebar-section" id="sidebar-region-section" style="display: none;">
                 <h3 class="section-title">Daerah Operasional</h3>
                 <nav class="region-nav">
                     <button class="region-btn active" data-region="bekasi">
@@ -166,7 +175,7 @@
                     <div class="upload-status" id="upload-status"></div>
                 </div>
             </header>
-            <section class="table-card">
+            <section class="table-card" id="table-view-container">
                 <div class="table-card-header">
                     <div class="header-info">
                         <h3 class="table-title" id="table-title">Ringkasan Semua KPI per STO</h3>
@@ -264,6 +273,147 @@
                             <tfoot id="table-footer">
                             </tfoot>
                         </table>
+                    </div>
+                </div>
+            </section>
+            <section class="wsa-dashboard-container" id="wsa-dashboard-container" style="display: none;">
+                <div class="wsa-filter-bar">
+                    <div class="wsa-filter-group">
+                        <label for="wsa-teritory1-select">Daerah</label>
+                        <select id="wsa-teritory1-select" class="wsa-select">
+                            <option value="eastern" selected>EASTERN</option>
+                            <option value="bekasi">BEKASI</option>
+                            <option value="bogor">BOGOR</option>
+                            <option value="karawang">KARAWANG</option>
+                        </select>
+                    </div>
+                    <div class="wsa-filter-group">
+                        <label for="wsa-teritory2-select">STO</label>
+                        <select id="wsa-teritory2-select" class="wsa-select">
+                            <option value="ALL" selected>ALL STO</option>
+                        </select>
+                    </div>
+                    <div class="wsa-filter-group">
+                        <label for="wsa-sort-select">Urutan Performa</label>
+                        <select id="wsa-sort-select" class="wsa-select">
+                            <option value="desc" selected>Tertinggi</option>
+                            <option value="asc">Terendah</option>
+                        </select>
+                    </div>
+                    <button type="button" class="wsa-filter-btn" id="wsa-filter-apply-btn">
+                        Filter
+                    </button>
+                </div>
+                <div class="wsa-cards-grid">
+                    <div class="wsa-kpi-card" id="wsa-card-sa">
+                        <div class="wsa-card-title">Service Availability (%)</div>
+                        <div class="wsa-card-metrics">
+                            <span class="wsa-card-val" id="wsa-val-sa">-</span>
+                            <div class="wsa-card-trend" id="wsa-trend-sa">
+                                <span class="trend-num">0.00%</span>
+                                <span class="trend-sym">=</span>
+                            </div>
+                        </div>
+                        <div class="wsa-card-badge" id="wsa-badge-sa">👍</div>
+                    </div>
+                    <div class="wsa-kpi-card" id="wsa-card-ag">
+                        <div class="wsa-card-title">Assurance Guarantee (%)</div>
+                        <div class="wsa-card-metrics">
+                            <span class="wsa-card-val" id="wsa-val-ag">-</span>
+                            <div class="wsa-card-trend" id="wsa-trend-ag">
+                                <span class="trend-num">+0.00%</span>
+                                <span class="trend-sym">=</span>
+                            </div>
+                        </div>
+                        <div class="wsa-card-badge" id="wsa-badge-ag">👍</div>
+                    </div>
+                    <div class="wsa-kpi-card" id="wsa-card-t3">
+                        <div class="wsa-card-title">TTR 3H D,V</div>
+                        <div class="wsa-card-metrics">
+                            <span class="wsa-card-val" id="wsa-val-t3">-</span>
+                            <div class="wsa-card-trend" id="wsa-trend-t3">
+                                <span class="trend-num">+0.00%</span>
+                                <span class="trend-sym">=</span>
+                            </div>
+                        </div>
+                        <div class="wsa-card-badge" id="wsa-badge-t3">👍</div>
+                    </div>
+                    <div class="wsa-kpi-card" id="wsa-card-t6">
+                        <div class="wsa-card-title">TTR 6H P</div>
+                        <div class="wsa-card-metrics">
+                            <span class="wsa-card-val" id="wsa-val-t6">-</span>
+                            <div class="wsa-card-trend" id="wsa-trend-t6">
+                                <span class="trend-num">+0.00%</span>
+                                <span class="trend-sym">=</span>
+                            </div>
+                        </div>
+                        <div class="wsa-card-badge" id="wsa-badge-t6">👍</div>
+                    </div>
+                    <div class="wsa-kpi-card" id="wsa-card-t36">
+                        <div class="wsa-card-title">TTR 36H NON HVC</div>
+                        <div class="wsa-card-metrics">
+                            <span class="wsa-card-val" id="wsa-val-t36">-</span>
+                            <div class="wsa-card-trend" id="wsa-trend-t36">
+                                <span class="trend-num">+0.00%</span>
+                                <span class="trend-sym">=</span>
+                            </div>
+                        </div>
+                        <div class="wsa-card-badge" id="wsa-badge-t36">👍</div>
+                    </div>
+                    <div class="wsa-kpi-card" id="wsa-card-manja">
+                        <div class="wsa-card-title">TTR 3H MANJA</div>
+                        <div class="wsa-card-metrics">
+                            <span class="wsa-card-val" id="wsa-val-manja">-</span>
+                            <div class="wsa-card-trend" id="wsa-trend-manja">
+                                <span class="trend-num">+0.00%</span>
+                                <span class="trend-sym">=</span>
+                            </div>
+                        </div>
+                        <div class="wsa-card-badge" id="wsa-badge-manja">👍</div>
+                    </div>
+                </div>
+                <div class="wsa-charts-grid">
+                    <div class="wsa-chart-box">
+                        <div class="wsa-chart-header">
+                            <h4>Service Availability (%)</h4>
+                            <span class="target-label">Target : 98.52%</span>
+                        </div>
+                        <div class="wsa-bar-list" id="wsa-chart-sa-list"></div>
+                    </div>
+                    <div class="wsa-chart-box">
+                        <div class="wsa-chart-header">
+                            <h4>Assurance Guarantee (%)</h4>
+                            <span class="target-label">Target : 91.71%</span>
+                        </div>
+                        <div class="wsa-bar-list" id="wsa-chart-ag-list"></div>
+                    </div>
+                    <div class="wsa-chart-box">
+                        <div class="wsa-chart-header">
+                            <h4>TTR 3H D,V</h4>
+                            <span class="target-label">Target : 92.25%</span>
+                        </div>
+                        <div class="wsa-bar-list" id="wsa-chart-t3-list"></div>
+                    </div>
+                    <div class="wsa-chart-box">
+                        <div class="wsa-chart-header">
+                            <h4>TTR 6H P</h4>
+                            <span class="target-label">Target : 95.00%</span>
+                        </div>
+                        <div class="wsa-bar-list" id="wsa-chart-t6-list"></div>
+                    </div>
+                    <div class="wsa-chart-box">
+                        <div class="wsa-chart-header">
+                            <h4>TTR 36H NON HVC</h4>
+                            <span class="target-label">Target : 99.04%</span>
+                        </div>
+                        <div class="wsa-bar-list" id="wsa-chart-t36-list"></div>
+                    </div>
+                    <div class="wsa-chart-box">
+                        <div class="wsa-chart-header">
+                            <h4>TTR 3H MANJA</h4>
+                            <span class="target-label">Target : 94.69%</span>
+                        </div>
+                        <div class="wsa-bar-list" id="wsa-chart-manja-list"></div>
                     </div>
                 </div>
             </section>

@@ -5,11 +5,11 @@ if (typeof supabase !== 'undefined' && SUPABASE_KEY.trim() !== '') {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 const AppState = {
-    activePage: 'all-kpi', 
-    activeRegion: 'bekasi',
-    activeYear: '2026',
-    activeMonth: 'Juli',
-    selectedSingleKpi: 'serviceAvailability',
+    activePage: localStorage.getItem('khalila_active_page') || 'dashboard-wsa', 
+    activeRegion: localStorage.getItem('khalila_active_region') || 'bekasi',
+    activeYear: localStorage.getItem('khalila_active_year') || '2026',
+    activeMonth: localStorage.getItem('khalila_active_month') || 'Juli',
+    selectedSingleKpi: localStorage.getItem('khalila_selected_kpi') || 'serviceAvailability',
     selectedSto: 'ALL',
     singleKpiSort: 'default',
     customData: {},
@@ -240,12 +240,27 @@ async function getExistingGroupData(targetKey) {
 function saveToLocalStorage() {
     try {
         localStorage.setItem('sto_dashboard_custom_data', JSON.stringify(AppState.customData));
+        localStorage.setItem('khalila_active_page', AppState.activePage || 'dashboard-wsa');
+        localStorage.setItem('khalila_active_region', AppState.activeRegion || 'bekasi');
+        localStorage.setItem('khalila_active_year', AppState.activeYear || '2026');
+        localStorage.setItem('khalila_active_month', AppState.activeMonth || 'Juli');
+        localStorage.setItem('khalila_selected_kpi', AppState.selectedSingleKpi || 'serviceAvailability');
     } catch (e) {
         console.error("Failed to save state to localStorage: ", e);
     }
 }
 function loadFromLocalStorage() {
     try {
+        const savedPage = localStorage.getItem('khalila_active_page');
+        if (savedPage) AppState.activePage = savedPage;
+        const savedRegion = localStorage.getItem('khalila_active_region');
+        if (savedRegion) AppState.activeRegion = savedRegion;
+        const savedYear = localStorage.getItem('khalila_active_year');
+        if (savedYear) AppState.activeYear = savedYear;
+        const savedMonth = localStorage.getItem('khalila_active_month');
+        if (savedMonth) AppState.activeMonth = savedMonth;
+        const savedKpi = localStorage.getItem('khalila_selected_kpi');
+        if (savedKpi) AppState.selectedSingleKpi = savedKpi;
         const saved = localStorage.getItem('sto_dashboard_custom_data');
         if (saved) {
             const parsed = JSON.parse(saved);
@@ -679,41 +694,291 @@ async function renderSingleKpiTable() {
     `;
     lucide.createIcons();
 }
+function updateWsaStoDropdown() {
+    const stoSelect = document.getElementById('wsa-teritory2-select');
+    if (!stoSelect) return;
+    const region = AppState.activeRegion;
+    const currentVal = stoSelect.value;
+    stoSelect.innerHTML = '<option value="ALL">ALL STO</option>';
+    let stos = [];
+    if (region === 'eastern') {
+        ['bekasi', 'bogor', 'karawang'].forEach(r => {
+            stos.push(...(AppState.stoLists[r] || []));
+        });
+    } else {
+        stos = AppState.stoLists[region] || [];
+    }
+    stos.forEach(sto => {
+        const opt = document.createElement('option');
+        opt.value = sto;
+        opt.textContent = `STO ${sto}`;
+        if (sto === currentVal) opt.selected = true;
+        stoSelect.appendChild(opt);
+    });
+}
+async function renderWsaDashboard() {
+    updateWsaStoDropdown();
+    const month = AppState.activeMonth;
+    const year = AppState.activeYear || '2026';
+    const activeRegion = AppState.activeRegion;
+    const selectedSto = document.getElementById('wsa-teritory2-select')?.value || 'ALL';
+    const branches = ['bekasi', 'bogor', 'karawang'];
+    const branchStats = {};
+    const stoStatsMap = {};
+    for (const b of branches) {
+        const rawData = await getActiveData(b, month, year);
+        let sumSa = 0, countSa = 0;
+        let sumAg = 0, countAg = 0;
+        let sumT3 = 0, countT3 = 0;
+        let sumT6 = 0, countT6 = 0;
+        let sumT36 = 0, countT36 = 0;
+        let sumManja = 0, countManja = 0;
+        rawData.forEach(r => {
+            if (r.serviceAvailability > 0) { sumSa += r.serviceAvailability; countSa++; }
+            if (r.assuranceGuarantee > 0) { sumAg += r.assuranceGuarantee; countAg++; }
+            if (r.ttr3h > 0) { sumT3 += r.ttr3h; countT3++; }
+            if (r.ttr6h > 0) { sumT6 += r.ttr6h; countT6++; }
+            if (r.ttr36h > 0) { sumT36 += r.ttr36h; countT36++; }
+            if (r.ttrManja > 0) { sumManja += r.ttrManja; countManja++; }
+            if (r.sto) {
+                stoStatsMap[r.sto.toUpperCase()] = r;
+            }
+        });
+        branchStats[b] = {
+            serviceAvailability: countSa > 0 ? (sumSa / countSa) : 0,
+            assuranceGuarantee: countAg > 0 ? (sumAg / countAg) : 0,
+            ttr3h: countT3 > 0 ? (sumT3 / countT3) : 0,
+            ttr6h: countT6 > 0 ? (sumT6 / countT6) : 0,
+            ttr36h: countT36 > 0 ? (sumT36 / countT36) : 0,
+            ttrManja: countManja > 0 ? (sumManja / countManja) : 0
+        };
+    }
+    const monthIdx = MONTHS_LIST.indexOf(month);
+    const prevMonth = monthIdx > 0 ? MONTHS_LIST[monthIdx - 1] : null;
+    const prevBranchStats = {};
+    const prevStoStatsMap = {};
+    if (prevMonth) {
+        for (const b of branches) {
+            const prevRawData = await getActiveData(b, prevMonth, year);
+            let sumSa = 0, countSa = 0;
+            let sumAg = 0, countAg = 0;
+            let sumT3 = 0, countT3 = 0;
+            let sumT6 = 0, countT6 = 0;
+            let sumT36 = 0, countT36 = 0;
+            let sumManja = 0, countManja = 0;
+            prevRawData.forEach(r => {
+                if (r.serviceAvailability > 0) { sumSa += r.serviceAvailability; countSa++; }
+                if (r.assuranceGuarantee > 0) { sumAg += r.assuranceGuarantee; countAg++; }
+                if (r.ttr3h > 0) { sumT3 += r.ttr3h; countT3++; }
+                if (r.ttr6h > 0) { sumT6 += r.ttr6h; countT6++; }
+                if (r.ttr36h > 0) { sumT36 += r.ttr36h; countT36++; }
+                if (r.ttrManja > 0) { sumManja += r.ttrManja; countManja++; }
+                if (r.sto) {
+                    prevStoStatsMap[r.sto.toUpperCase()] = r;
+                }
+            });
+            prevBranchStats[b] = {
+                serviceAvailability: countSa > 0 ? (sumSa / countSa) : 0,
+                assuranceGuarantee: countAg > 0 ? (sumAg / countAg) : 0,
+                ttr3h: countT3 > 0 ? (sumT3 / countT3) : 0,
+                ttr6h: countT6 > 0 ? (sumT6 / countT6) : 0,
+                ttr36h: countT36 > 0 ? (sumT36 / countT36) : 0,
+                ttrManja: countManja > 0 ? (sumManja / countManja) : 0
+            };
+        }
+    }
+    const targetSlaMap = {
+        serviceAvailability: 98.52,
+        assuranceGuarantee: 91.71,
+        ttr3h: 92.25,
+        ttr6h: 95.00,
+        ttr36h: 99.04,
+        ttrManja: 94.69
+    };
+    const kpiKeys = ['serviceAvailability', 'assuranceGuarantee', 'ttr3h', 'ttr6h', 'ttr36h', 'ttrManja'];
+    const cardIdMap = {
+        serviceAvailability: 'sa',
+        assuranceGuarantee: 'ag',
+            ttr3h: 't3',
+        ttr6h: 't6',
+        ttr36h: 't36',
+        ttrManja: 'manja'
+    };
+    const wsaSortOrder = document.getElementById('wsa-sort-select')?.value || 'desc';
+    kpiKeys.forEach(kpiKey => {
+        const target = targetSlaMap[kpiKey];
+        let overallVal = 0;
+        let prevVal = 0;
+        if (selectedSto !== 'ALL' && stoStatsMap[selectedSto.toUpperCase()]) {
+            overallVal = stoStatsMap[selectedSto.toUpperCase()][kpiKey] || 0;
+        } else if (activeRegion === 'eastern') {
+            const vals = branches.map(b => branchStats[b][kpiKey]).filter(v => v > 0);
+            overallVal = vals.length > 0 ? (vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+        } else if (branchStats[activeRegion]) {
+            overallVal = branchStats[activeRegion][kpiKey];
+        }
+        if (prevMonth) {
+            if (selectedSto !== 'ALL' && prevStoStatsMap[selectedSto.toUpperCase()]) {
+                prevVal = prevStoStatsMap[selectedSto.toUpperCase()][kpiKey] || 0;
+            } else if (activeRegion === 'eastern') {
+                const pVals = branches.map(b => prevBranchStats[b] ? prevBranchStats[b][kpiKey] : 0).filter(v => v > 0);
+                prevVal = pVals.length > 0 ? (pVals.reduce((a, b) => a + b, 0) / pVals.length) : 0;
+            } else if (prevBranchStats[activeRegion]) {
+                prevVal = prevBranchStats[activeRegion][kpiKey];
+            }
+        }
+        const cardKey = cardIdMap[kpiKey];
+        const valElem = document.getElementById(`wsa-val-${cardKey}`);
+        const trendElem = document.getElementById(`wsa-trend-${cardKey}`);
+        const badgeElem = document.getElementById(`wsa-badge-${cardKey}`);
+        const isAchieved = overallVal >= target;
+        if (valElem) {
+            valElem.textContent = overallVal > 0 ? formatPct(overallVal) : '-';
+            valElem.className = `wsa-card-val ${isAchieved ? 'achieved' : 'unachieved'}`;
+        }
+        if (badgeElem) {
+            badgeElem.textContent = isAchieved ? '👍' : '👎';
+        }
+        if (trendElem) {
+            let diffVal = 0;
+            let titleText = '';
+            if (prevVal > 0) {
+                diffVal = overallVal - prevVal;
+                titleText = `MoM vs ${prevMonth}: ${formatPct(prevVal)}`;
+            } else if (overallVal > 0) {
+                diffVal = overallVal - target;
+                titleText = `Selisih vs Target SLA (${target}%) - Mengingat baru ada data 1 bulan`;
+            }
+            const diffStr = diffVal >= 0 ? `+${diffVal.toFixed(2)}%` : `${diffVal.toFixed(2)}%`;
+            const sym = diffVal > 0 ? '▲' : (diffVal < 0 ? '▼' : '=');
+            const cls = diffVal > 0 ? 'up' : (diffVal < 0 ? 'down' : 'equal');
+            trendElem.className = `wsa-card-trend ${cls}`;
+            trendElem.innerHTML = `<span class="trend-num">${diffStr}</span><span class="trend-sym">${sym}</span>`;
+            trendElem.title = titleText;
+        }
+        const chartListElem = document.getElementById(`wsa-chart-${cardKey}-list`);
+        if (chartListElem) {
+            const gradients = ['gradient-1', 'gradient-2', 'gradient-3', 'gradient-4'];
+            let displayItems = [];
+            if (selectedSto !== 'ALL') {
+                const stoData = stoStatsMap[selectedSto.toUpperCase()];
+                displayItems = [{
+                    label: selectedSto.toUpperCase(),
+                    val: stoData ? (stoData[kpiKey] || 0) : 0
+                }];
+            } else if (activeRegion === 'eastern') {
+                displayItems = branches.map(bName => ({
+                    label: bName.toUpperCase(),
+                    val: branchStats[bName] ? branchStats[bName][kpiKey] : 0
+                })).sort((a, b) => wsaSortOrder === 'asc' ? a.val - b.val : b.val - a.val);
+            } else {
+                const stosInRegion = AppState.stoLists[activeRegion] || [];
+                displayItems = stosInRegion.map(stoName => {
+                    const stoData = stoStatsMap[stoName.toUpperCase()];
+                    return {
+                        label: stoName.toUpperCase(),
+                        val: stoData ? (stoData[kpiKey] || 0) : 0
+                    };
+                }).sort((a, b) => wsaSortOrder === 'asc' ? a.val - b.val : b.val - a.val).slice(0, 5);
+            }
+            chartListElem.innerHTML = `
+                <div class="wsa-target-line" style="left: ${target}%;" title="Target SLA: ${target}%"></div>
+                ${displayItems.map((item, idx) => {
+                    const fillPct = Math.min(100, Math.max(0, item.val));
+                    const gradClass = gradients[idx % gradients.length];
+                    return `
+                        <div class="wsa-bar-item">
+                            <span class="wsa-area-name" style="width: 85px;">${item.label}</span>
+                            <div class="wsa-bar-wrapper">
+                                <div class="wsa-bar-fill ${gradClass}" style="width: ${fillPct}%;">
+                                    ${item.val > 0 ? formatPct(item.val) : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+        }
+    });
+    lucide.createIcons();
+}
 async function renderTable() {
     const singleKpiSelector = document.getElementById('single-kpi-selector');
     const monthFilterSection = document.getElementById('month-filter-section');
     const tableTitle = document.getElementById('table-title');
     const filterKpi = document.getElementById('filter-kpi-item');
     const filterSort = document.getElementById('filter-sort-item');
-    if (AppState.activePage === 'all-kpi') {
-        if (filterKpi) filterKpi.style.display = 'none';
-        if (filterSort) filterSort.style.display = 'none';
-        if (monthFilterSection) monthFilterSection.style.display = 'block';
-        updateStoFilterDropdown();
-        if (tableTitle) tableTitle.textContent = 'Ringkasan Semua KPI per STO';
-        await renderAllKpiTable();
+    const tableView = document.getElementById('table-view-container');
+    const wsaView = document.getElementById('wsa-dashboard-container');
+    if (AppState.activePage === 'dashboard-wsa') {
+        if (tableView) tableView.style.display = 'none';
+        if (wsaView) wsaView.style.display = 'flex';
+        await renderWsaDashboard();
     } else {
-        if (filterKpi) filterKpi.style.display = 'flex';
-        if (filterSort) filterSort.style.display = 'flex';
-        if (monthFilterSection) monthFilterSection.style.display = 'none';
-        updateStoFilterDropdown();
-        const kpiInfo = KPI_LABEL_MAP[AppState.selectedSingleKpi] || KPI_LABEL_MAP.serviceAvailability;
-        if (tableTitle) tableTitle.textContent = `Tren ${kpiInfo.label} per STO (Jan - Des)`;
-        await renderSingleKpiTable();
+        if (tableView) tableView.style.display = 'block';
+        if (wsaView) wsaView.style.display = 'none';
+        if (AppState.activePage === 'all-kpi') {
+            if (filterKpi) filterKpi.style.display = 'none';
+            if (filterSort) filterSort.style.display = 'none';
+            if (monthFilterSection) monthFilterSection.style.display = 'block';
+            updateStoFilterDropdown();
+            if (tableTitle) tableTitle.textContent = 'Ringkasan Semua KPI per STO';
+            await renderAllKpiTable();
+        } else {
+            if (filterKpi) filterKpi.style.display = 'flex';
+            if (filterSort) filterSort.style.display = 'flex';
+            if (monthFilterSection) monthFilterSection.style.display = 'none';
+            updateStoFilterDropdown();
+            const kpiInfo = KPI_LABEL_MAP[AppState.selectedSingleKpi] || KPI_LABEL_MAP.serviceAvailability;
+            if (tableTitle) tableTitle.textContent = `Tren ${kpiInfo.label} per STO (Jan - Des)`;
+            await renderSingleKpiTable();
+        }
     }
 }
 function updateHeaderInfo() {
     const capRegion = AppState.activeRegion.charAt(0).toUpperCase() + AppState.activeRegion.slice(1);
     document.getElementById('dashboard-title').textContent = 'Kendali Hasil Analisis & Laporan Informasi Lintas Area';
     const year = AppState.activeYear || '2026';
-    if (AppState.activePage === 'all-kpi') {
+    if (AppState.activePage === 'dashboard-wsa') {
+        document.getElementById('dashboard-subtitle').textContent = `STO ${capRegion} • Executive Dashboard WSA • Periode ${AppState.activeMonth} ${year}`;
+    } else if (AppState.activePage === 'all-kpi') {
         document.getElementById('dashboard-subtitle').textContent = `STO ${capRegion} • Periode ${AppState.activeMonth} ${year} • Ringkasan Semua KPI`;
     } else {
         const kpiInfo = KPI_LABEL_MAP[AppState.selectedSingleKpi] || KPI_LABEL_MAP.serviceAvailability;
         document.getElementById('dashboard-subtitle').textContent = `STO ${capRegion} • Tren ${kpiInfo.label} • Tahun ${year}`;
     }
 }
+function syncNavUI() {
+    document.querySelectorAll('.main-nav .nav-btn').forEach(btn => {
+        if (btn.dataset.page === AppState.activePage) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    document.querySelectorAll('.region-btn').forEach(btn => {
+        if (btn.dataset.region === AppState.activeRegion) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    const regionSection = document.getElementById('sidebar-region-section');
+    if (regionSection) {
+        if (AppState.activePage === 'dashboard-wsa') {
+            regionSection.style.display = 'none';
+        } else {
+            regionSection.style.display = 'block';
+        }
+    }
+    const wsaTeritory1 = document.getElementById('wsa-teritory1-select');
+    if (wsaTeritory1 && AppState.activeRegion) {
+        wsaTeritory1.value = AppState.activeRegion;
+    }
+}
 function handleUIUpdate() {
+    saveToLocalStorage();
+    syncNavUI();
     updateHeaderInfo();
     renderTable();
 }
@@ -1242,6 +1507,33 @@ function initEvents() {
         sortOrderSelect.addEventListener('change', function () {
             AppState.singleKpiSort = this.value;
             renderTable();
+        });
+    }
+    const wsaTeritory1 = document.getElementById('wsa-teritory1-select');
+    if (wsaTeritory1) {
+        wsaTeritory1.addEventListener('change', function () {
+            AppState.activeRegion = this.value;
+            const wsaStoSelect = document.getElementById('wsa-teritory2-select');
+            if (wsaStoSelect) wsaStoSelect.value = 'ALL';
+            handleUIUpdate();
+        });
+    }
+    const wsaTeritory2 = document.getElementById('wsa-teritory2-select');
+    if (wsaTeritory2) {
+        wsaTeritory2.addEventListener('change', function () {
+            handleUIUpdate();
+        });
+    }
+    const wsaSortSelect = document.getElementById('wsa-sort-select');
+    if (wsaSortSelect) {
+        wsaSortSelect.addEventListener('change', function () {
+            handleUIUpdate();
+        });
+    }
+    const wsaApplyBtn = document.getElementById('wsa-filter-apply-btn');
+    if (wsaApplyBtn) {
+        wsaApplyBtn.addEventListener('click', function () {
+            handleUIUpdate();
         });
     }
     document.addEventListener('click', function (e) {
