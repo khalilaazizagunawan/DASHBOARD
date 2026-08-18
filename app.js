@@ -1592,7 +1592,7 @@ function initEvents() {
         });
     }
 }
-const VALID_USERNAME = 'admin';
+const VALID_USERNAME = 'adminfbfa';
 const VALID_PASSWORD = 'admin123';
 function checkAuthAndInit() {
     const isLoggedIn = sessionStorage.getItem('khalila_logged_in');
