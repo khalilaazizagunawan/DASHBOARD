@@ -6,7 +6,7 @@ if (typeof supabase !== 'undefined' && SUPABASE_KEY.trim() !== '') {
 }
 const AppState = {
     activePage: localStorage.getItem('khalila_active_page') || 'dashboard-wsa', 
-    activeRegion: localStorage.getItem('khalila_active_region') || 'bekasi',
+    activeRegion: localStorage.getItem('khalila_active_region') || 'eastern',
     activeYear: localStorage.getItem('khalila_active_year') || '2026',
     activeMonth: localStorage.getItem('khalila_active_month') || 'Juli',
     selectedSingleKpi: localStorage.getItem('khalila_selected_kpi') || 'serviceAvailability',
