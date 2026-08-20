@@ -2051,3 +2051,349 @@ tfoot td.sticky-col {
     border-left: 2px dashed #f59e0b;
     z-index: 2;
 }
+
+/* ==========================================================================
+   RESPONSIVE — MOBILE & TABLET
+   ========================================================================== */
+
+/* ── Tablet (≤ 1024px): collapse right graphic panel ── */
+@media (max-width: 1024px) {
+    .login-right-graphic {
+        display: none;
+    }
+    .login-left-side {
+        max-width: 100%;
+        padding: 60px 80px;
+    }
+    .login-split-container {
+        justify-content: center;
+    }
+}
+
+/* ── Mobile (≤ 768px) ── */
+@media (max-width: 768px) {
+
+    /* --- LOGIN PAGE --- */
+    .login-overlay {
+        background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 0;
+        overflow-y: auto;
+    }
+
+    .login-split-container {
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        justify-content: center;
+        align-items: center;
+        padding: 32px 20px;
+    }
+
+    .login-left-side {
+        padding: 0;
+        max-width: 420px;
+        width: 100%;
+        flex: none;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 36px 28px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+    }
+
+    .split-brand-header {
+        margin-bottom: 28px;
+    }
+
+    .split-brand-logo {
+        height: 34px;
+    }
+
+    .split-brand-name {
+        font-size: 18px;
+    }
+
+    .split-welcome-text {
+        margin-bottom: 24px;
+    }
+
+    .split-welcome-text h1 {
+        font-size: 26px;
+        letter-spacing: -0.5px;
+    }
+
+    .split-welcome-text p {
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    .split-login-form {
+        gap: 16px;
+    }
+
+    .split-input {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .split-submit-btn {
+        width: 100%;
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    /* --- SIDEBAR: full-width drawer on mobile --- */
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: 200;
+        width: 280px;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+    }
+
+    /* Desktop collapse class overridden on mobile */
+    .sidebar-collapsed .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar-collapsed .main-content {
+        margin-left: 0;
+    }
+
+    /* Show overlay when sidebar is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 190;
+        backdrop-filter: blur(2px);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* --- MAIN CONTENT --- */
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+        padding-top: 0;
+    }
+
+    /* --- CONTENT HEADER --- */
+    .content-header {
+        position: sticky;
+        top: 0;
+        background: var(--gray-bg);
+        z-index: 50;
+        padding: 12px 0 12px 0;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .header-left {
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Always show hamburger on mobile */
+    .sidebar-expand-btn {
+        display: flex !important;
+        flex-shrink: 0;
+        padding: 8px;
+    }
+
+    .sidebar-collapse-btn {
+        display: none;
+    }
+
+    .header-title-wrapper {
+        min-width: 0;
+    }
+
+    .content-title {
+        font-size: 15px;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .content-subtitle {
+        font-size: 11px;
+    }
+
+    .header-right {
+        width: 100%;
+    }
+
+    .upload-status {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    /* --- TABLE CARD --- */
+    .table-card {
+        border-radius: var(--radius-sm);
+    }
+
+    .table-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 14px;
+    }
+
+    .table-title {
+        font-size: 13px;
+    }
+
+    .table-subtitle {
+        font-size: 11px;
+    }
+
+    .header-controls {
+        width: 100%;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .single-kpi-selector {
+        width: 100%;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .filter-item {
+        width: 100%;
+        flex-wrap: wrap !important;
+    }
+
+    .filter-item label {
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+
+    .filter-item .select-wrapper {
+        min-width: unset !important;
+        width: 100% !important;
+        flex: 1;
+    }
+
+    .table-wrapper-inner {
+        max-height: calc(100vh - 280px);
+    }
+
+    /* --- WSA DASHBOARD --- */
+    .wsa-dashboard-container {
+        gap: 16px;
+    }
+
+    .wsa-filter-bar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px;
+    }
+
+    .wsa-filter-group {
+        width: 100%;
+    }
+
+    .wsa-filter-group select {
+        width: 100%;
+    }
+
+    .wsa-filter-btn {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .wsa-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .wsa-kpi-card {
+        padding: 14px;
+    }
+
+    .wsa-card-val {
+        font-size: 26px !important;
+    }
+
+    .wsa-card-title {
+        font-size: 11px;
+    }
+
+    .wsa-charts-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .wsa-chart-box {
+        padding: 14px;
+    }
+
+    /* --- MODAL --- */
+    .modal-box {
+        width: calc(100vw - 32px);
+        max-height: 88vh;
+        padding: 20px;
+        margin: 16px;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .modal-title {
+        font-size: 14px;
+    }
+
+    /* --- TOAST --- */
+    .toast-container {
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+    }
+
+    .toast {
+        font-size: 13px;
+        padding: 10px 14px;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* ── Small Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+    .login-left-side {
+        padding: 28px 20px;
+        border-radius: 16px;
+    }
+
+    .split-welcome-text h1 {
+        font-size: 22px;
+    }
+
+    .wsa-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .content-title {
+        font-size: 13px;
+    }
+
+    .main-content {
+        padding: 12px;
+        padding-top: 0;
+    }
+}
