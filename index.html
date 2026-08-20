@@ -17,36 +17,119 @@
 </head>
 <body>
     <div class="login-overlay" id="login-overlay">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="login-logo" style="background: none;">
-                    <img src="Logo.png" alt="KHALILA Logo"
-                        style="width: 150%; height: 150%; object-fit: contain; border-radius: 12px;">
+        <div class="login-split-container">
+            <div class="login-left-side">
+                <div class="split-brand-header">
+                    <img src="Logo.png" alt="KHALILA Logo" class="split-brand-logo">
+                    <span class="split-brand-name">KHALILA</span>
                 </div>
-                <h2>LOGIN</h2>
+                <div class="split-welcome-text">
+                    <h1>Halo,</h1>
+                    <h1>Selamat Datang</h1>
+                    <p>Silakan masuk ke akun KHALILA Executive Dashboard Anda</p>
+                </div>
+                <form id="login-form" class="split-login-form">
+                    <div class="split-input-field">
+                        <label for="username">Email / Username</label>
+                        <input type="text" id="username" class="split-input" required placeholder="Masukkan username">
+                    </div>
+                    <div class="split-input-field">
+                        <label for="password">Password</label>
+                        <div class="split-input-box">
+                            <input type="password" id="password" class="split-input" required placeholder="Masukkan password">
+                            <button type="button" id="toggle-password-btn" class="split-eye-btn" aria-label="Toggle Password">
+                                <i data-lucide="eye" id="toggle-password-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="split-options-row">
+                        <label class="split-check-label">
+                            <input type="checkbox" id="remember-me" checked>
+                            <span>Ingat Sesi Saya</span>
+                        </label>
+                    </div>
+                    <div class="split-action-row">
+                        <button type="submit" class="split-submit-btn">
+                            <span>Login</span>
+                        </button>
+                    </div>
+                    <div id="login-error" class="split-error-alert">
+                        <i data-lucide="alert-circle"></i>
+                        <span>Username atau password salah!</span>
+                    </div>
+                </form>
             </div>
-            <form id="login-form">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="username"
-                        style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px;">Username</label>
-                    <input type="text" id="username" class="form-input" required
-                        placeholder="Masukkan username">
+            <div class="login-right-graphic">
+                <div class="graphic-bg-clouds">
+                    <div class="pulse-ring ring-1"></div>
+                    <div class="pulse-ring ring-2"></div>
+                    <div class="cloud-shape cloud-1"></div>
+                    <div class="cloud-shape cloud-2"></div>
+                    <div class="cloud-shape cloud-3"></div>
+                    <div class="cloud-shape cloud-4"></div>
+                    <div class="cloud-shape cloud-5"></div>
+                    <div class="glowing-sparkle sparkle-1">✦</div>
+                    <div class="glowing-sparkle sparkle-2">✨</div>
+                    <div class="glowing-sparkle sparkle-3">✦</div>
+                    <div class="glowing-sparkle sparkle-4">✨</div>
+                    <div class="orb-dot dot-red-1"></div>
+                    <div class="orb-dot dot-cyan-1"></div>
+                    <div class="orb-dot dot-white-1"></div>
                 </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="password"
-                        style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px;">Password</label>
-                    <input type="password" id="password" class="form-input" required
-                        placeholder="Masukkan password">
+                <div class="graphic-illustration-wrapper" id="graphic-illustration-wrapper">
+                    <div class="illu-element check-speech-bubble" data-speed="2.5">
+                        <div class="check-bubble-inner">
+                            <i data-lucide="check"></i>
+                        </div>
+                    </div>
+                    <div class="illu-element padlock-3d-box" data-speed="-3">
+                        <div class="padlock-inner">
+                            <i data-lucide="lock"></i>
+                        </div>
+                    </div>
+                    <div class="illu-element shield-floating-badge" data-speed="1.9">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <div class="illu-element zap-floating-badge" data-speed="-1.7">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <div class="illu-element globe-floating-badge" data-speed="2.8">
+                        <i data-lucide="globe"></i>
+                    </div>
+                    <div class="illu-element server-floating-badge" data-speed="-2.4">
+                        <i data-lucide="server"></i>
+                    </div>
+                    <div class="illu-element analytics-floating-badge" data-speed="2.1">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <div class="illu-element wifi-floating-badge" data-speed="-1.5">
+                        <i data-lucide="wifi"></i>
+                    </div>
+                    <div class="illu-element smartphone-3d-mockup" data-speed="1.2">
+                        <div class="phone-frame">
+                            <div class="phone-notch"></div>
+                            <div class="phone-screen-content">
+                                <div class="scanner-circle">
+                                    <svg class="fingerprint-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M50,15 A35,35 0 0,1 85,50 A35,35 0 0,1 68,80" stroke="#EC1C24" stroke-width="4" stroke-linecap="round"/>
+                                        <path d="M32,80 A35,35 0 0,1 15,50 A35,35 0 0,1 50,15" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+                                        <path d="M50,26 A24,24 0 0,1 74,50 A24,24 0 0,1 62,71" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round"/>
+                                        <path d="M38,71 A24,24 0 0,1 26,50 A24,24 0 0,1 50,26" stroke="#EC1C24" stroke-width="3.5" stroke-linecap="round"/>
+                                        <path d="M50,37 A13,13 0 0,1 63,50 A13,13 0 0,1 56,61" stroke="#EC1C24" stroke-width="3" stroke-linecap="round"/>
+                                        <path d="M44,61 A13,13 0 0,1 37,50 A13,13 0 0,1 50,37" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+                                        <circle cx="50" cy="50" r="4" fill="#EC1C24"/>
+                                    </svg>
+                                    <div class="scan-beam"></div>
+                                </div>
+                                <div class="scan-progress-bar">
+                                    <div class="progress-fill"></div>
+                                </div>
+                                <span class="scan-text">Please tap your finger to authenticate</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="action-btn upload-btn"
-                    style="width: 100%; justify-content: center; margin-top: 10px; padding: 12px; font-size: 14px;">
-                    Login
-                </button>
-                <div id="login-error"
-                    style="color: var(--red-primary); text-align: center; font-size: 13px; margin-top: 15px; display: none; font-weight: 500;">
-                    Username atau password salah!
-                </div>
-            </form>
+            </div>
         </div>
     </div>
     <div class="app-container" id="app-container" style="display: none;">

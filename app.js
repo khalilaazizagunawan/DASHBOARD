@@ -1594,7 +1594,41 @@ function initEvents() {
 }
 const VALID_USERNAME = 'adminfbfa';
 const VALID_PASSWORD = 'admin123';
+function initSplitLoginInteractions() {
+    const toggleBtn = document.getElementById('toggle-password-btn');
+    const passInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('toggle-password-icon');
+    if (toggleBtn && passInput && toggleIcon) {
+        toggleBtn.addEventListener('click', () => {
+            const isPass = passInput.type === 'password';
+            passInput.type = isPass ? 'text' : 'password';
+            toggleIcon.setAttribute('data-lucide', isPass ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        });
+    }
+    const wrapper = document.getElementById('graphic-illustration-wrapper');
+    const elements = document.querySelectorAll('.illu-element');
+    if (wrapper && elements.length > 0) {
+        wrapper.addEventListener('mousemove', (e) => {
+            const rect = wrapper.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const moveX = (e.clientX - centerX) / 25;
+            const moveY = (e.clientY - centerY) / 25;
+            elements.forEach(el => {
+                const speed = parseFloat(el.getAttribute('data-speed')) || 1;
+                el.style.transform = `translate(${moveX * speed}px, ${moveY * speed}px)`;
+            });
+        });
+        wrapper.addEventListener('mouseleave', () => {
+            elements.forEach(el => {
+                el.style.transform = `translate(0px, 0px)`;
+            });
+        });
+    }
+}
 function checkAuthAndInit() {
+    initSplitLoginInteractions();
     const isLoggedIn = sessionStorage.getItem('khalila_logged_in');
     const loginOverlay = document.getElementById('login-overlay');
     const appContainer = document.getElementById('app-container');
@@ -1615,7 +1649,7 @@ function checkAuthAndInit() {
                     loginError.style.display = 'none';
                     initializeApp();
                 } else {
-                    loginError.style.display = 'block';
+                    loginError.style.display = 'flex';
                 }
             });
         }
