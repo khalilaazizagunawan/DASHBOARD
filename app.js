@@ -930,22 +930,24 @@ async function renderTable() {
             if (monthFilterSection) monthFilterSection.style.display = 'none';
             updateStoFilterDropdown();
             const kpiInfo = KPI_LABEL_MAP[AppState.selectedSingleKpi] || KPI_LABEL_MAP.serviceAvailability;
-            if (tableTitle) tableTitle.textContent = `Tren ${kpiInfo.label} per STO (Jan - Des)`;
+            if (tableTitle) tableTitle.textContent = `Tren ${kpiInfo.label} per STO`;
             await renderSingleKpiTable();
         }
     }
 }
 function updateHeaderInfo() {
     const capRegion = AppState.activeRegion.charAt(0).toUpperCase() + AppState.activeRegion.slice(1);
-    document.getElementById('dashboard-title').textContent = 'Kendali Hasil Analisis & Laporan Informasi Lintas Area';
     const year = AppState.activeYear || '2026';
+    const titleEl = document.getElementById('dashboard-title');
+    const subtitleEl = document.getElementById('dashboard-subtitle');
+    if (titleEl) titleEl.textContent = 'Kendali Hasil Analisis & Laporan Informasi Lintas Area';
     if (AppState.activePage === 'dashboard-wsa') {
-        document.getElementById('dashboard-subtitle').textContent = `STO ${capRegion} • Executive Dashboard WSA • Periode ${AppState.activeMonth} ${year}`;
+        if (subtitleEl) subtitleEl.textContent = `${AppState.activeMonth} ${year}`;
     } else if (AppState.activePage === 'all-kpi') {
-        document.getElementById('dashboard-subtitle').textContent = `STO ${capRegion} • Periode ${AppState.activeMonth} ${year} • Ringkasan Semua KPI`;
+        if (subtitleEl) subtitleEl.textContent = `${capRegion} • ${AppState.activeMonth} ${year}`;
     } else {
         const kpiInfo = KPI_LABEL_MAP[AppState.selectedSingleKpi] || KPI_LABEL_MAP.serviceAvailability;
-        document.getElementById('dashboard-subtitle').textContent = `STO ${capRegion} • Tren ${kpiInfo.label} • Tahun ${year}`;
+        if (subtitleEl) subtitleEl.textContent = `${capRegion} • Tahun ${year}`;
     }
 }
 function syncNavUI() {

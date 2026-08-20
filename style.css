@@ -2218,11 +2218,14 @@ tfoot td.sticky-col {
     }
 
     .content-title {
-        font-size: 15px;
-        line-height: 1.3;
-        white-space: nowrap;
+        font-size: 14px;
+        line-height: 1.35;
+        white-space: normal;
+        overflow: visible;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     .content-subtitle {
@@ -2260,30 +2263,34 @@ tfoot td.sticky-col {
 
     .header-controls {
         width: 100%;
-        flex-wrap: wrap !important;
+        flex-direction: column !important;
         gap: 8px !important;
     }
 
     .single-kpi-selector {
         width: 100%;
-        flex-wrap: wrap !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
         gap: 8px !important;
     }
 
     .filter-item {
-        width: 100%;
-        flex-wrap: wrap !important;
+        display: grid !important;
+        grid-template-columns: 80px 1fr !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
     }
 
     .filter-item label {
-        font-size: 11px !important;
+        font-size: 12px !important;
         white-space: nowrap !important;
+        margin: 0 !important;
     }
 
     .filter-item .select-wrapper {
         min-width: unset !important;
         width: 100% !important;
-        flex: 1;
     }
 
     .table-wrapper-inner {
